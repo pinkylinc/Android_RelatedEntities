@@ -13,7 +13,6 @@ annotation. Then, instead use different DAO calls to populate the classes as req
 
 Entities need to implement the IRowID interface for getting the Row ID value.
 
-/*
     Copyright 2018 Lincoln Rogers
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,99 +26,97 @@ Entities need to implement the IRowID interface for getting the Row ID value.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
- */
+
 
 Eg: Simple entity class and DAO
 
-public class User implements IRowID {
-    @PrimaryKey(autoGenerate = true)
-    @NonNull
-    @ColumnInfo(name = "_id", index = true)
-    public long mId;
-
-    @ColumnInfo(name = "alias")
-    public String mAlias;
-
-    @Ignore
-    public List<Details> mDetails;
-
-    @Ignore
-    public List<Pet> mPets;
-
-    @Ignore
-    public List<House> mHouse;
-
-    @Override
-    public long getId() {
-        return mId;
+    public class User implements IRowID {
+        @PrimaryKey(autoGenerate = true)
+        @NonNull
+        @ColumnInfo(name = "_id", index = true)
+        public long mId;
+    
+        @ColumnInfo(name = "alias")
+        public String mAlias;
+    
+        @Ignore
+        public List<Details> mDetails;
+    
+        @Ignore
+        public List<Pet> mPets;
+    
+        @Ignore
+        public List<House> mHouse;
+    
+        @Override
+        public long getId() {
+            return mId;
+        }
     }
-}
 
-public class House implements IRowID {
-    @PrimaryKey(autoGenerate = true)
-    @NonNull
-    @ColumnInfo(name = "_id", index = true)
-    public long mId;
+    public class House implements IRowID {
+        @PrimaryKey(autoGenerate = true)
+        @NonNull
+        @ColumnInfo(name = "_id", index = true)
+        public long mId;
 
-    @ColumnInfo(name = "userid", index = true)
-    public long mUserId;
+        @ColumnInfo(name = "userid", index = true)
+        public long mUserId;
 
-    @ColumnInfo(name = "alias")
-    public String mAlias;
+        @ColumnInfo(name = "alias")
+        public String mAlias;
 
-    @ColumnInfo(name = "streetnumber")
-    public String mStreetNumber;
+        @ColumnInfo(name = "streetnumber")
+        public String mStreetNumber;
 
-    @Ignore
-    public List<Doors> mDoors;
+        @Ignore
+        public List<Doors> mDoors;
 
-    @Override
-    public long getId() {
-        return mId;
+        @Override
+        public long getId() {
+            return mId;
+        }
     }
-}
 
-public class Doors implements IRowID {
-    @PrimaryKey(autoGenerate = true)
-    @NonNull
-    @ColumnInfo(name = "_id", index = true)
-    public long mId;
+    public class Doors implements IRowID {
+        @PrimaryKey(autoGenerate = true)
+        @NonNull
+        @ColumnInfo(name = "_id", index = true)
+        public long mId;
 
-    @ColumnInfo(name = "houseid", index = true)
-    public long mHouseId;
+        @ColumnInfo(name = "houseid", index = true)
+        public long mHouseId;
 
-    @ColumnInfo(name = "facing")
-    public String mFacing;
+        @ColumnInfo(name = "facing")
+        public String mFacing;
 
-    @ColumnInfo(name = "colour")
-    public String mColour;
+        @ColumnInfo(name = "colour")
+        public String mColour;
 
-    @Override
-    public long getId() {
-        return mId;
+        @Override
+        public long getId() {
+            return mId;
+        }
     }
-}
 
-/*
- * This dao will fetch users with houses with red-doors.
- * The RXJava flowable is maintained and will emit when any of the tables are updated.
- */
+This dao will fetch users with houses with red-doors.
+The RXJava flowable is maintained and will emit when any of the tables are updated.
 
-public Flowable<List<User>> getUserHouseDoors(long userId) {
-    return getUserById(userId).flatMap(users -> {
-        RelatedCollection<User, House> userAddHouses = new RelatedCollection<>(users, (parent, child) -> parent.mHouse = child);                                        //Map house collections to each user, keyed to id
+    public Flowable<List<User>> getUserHouseDoors(long userId) {
+        return getUserById(userId).flatMap(users -> {
+            RelatedCollection<User, House> userAddHouses = new RelatedCollection<>(users, (parent, child) -> parent.mHouse = child);                                        //Map house collections to each user, keyed to id
 
-        //Get Houses and add to parent collections, then continue by adding Doors
-        return getHousesById(userAddHouse.getIds()).flatMap(houses -> {
-            userAddHouses.addChildList(houses, child -> child.mUserId);                                                                                                 //Add collections to parent
-            RelatedCollection<House, Door> houseAddDoors = new RelatedCollection<>(houses, (parent, child) -> parent.mDoors = child);                                   //Map door collections to each house, keyed to id
+            //Get Houses and add to parent collections, then continue by adding Doors
+            return getHousesById(userAddHouse.getIds()).flatMap(houses -> {
+                userAddHouses.addChildList(houses, child -> child.mUserId);                                                                                                 //Add collections to parent
+                RelatedCollection<House, Door> houseAddDoors = new RelatedCollection<>(houses, (parent, child) -> parent.mDoors = child);                                   //Map door collections to each house, keyed to id
 
-            //Get Doors and add to parent collections
-            return getDoorsByIdAndColour(houseAddDoors.getIds(), "Red").flatMap(doors -> {
-                houseAddDoors.addChildList(doors, child -> child.mHouseId);                                                                                             //Add collections to parent
-                return Flowable.just(users);
+                //Get Doors and add to parent collections
+                return getDoorsByIdAndColour(houseAddDoors.getIds(), "Red").flatMap(doors -> {
+                    houseAddDoors.addChildList(doors, child -> child.mHouseId);                                                                                             //Add collections to parent
+                    return Flowable.just(users);
+                });
             });
         });
-    });
-}
+    }
  */
